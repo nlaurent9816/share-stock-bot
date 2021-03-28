@@ -1,4 +1,4 @@
-package fr.nlaurent.sharestocks.beans
+package fr.nlaurent.discordbot.sharestocks.beans
 
 import discord4j.common.util.Snowflake
 import kotlinx.serialization.KSerializer

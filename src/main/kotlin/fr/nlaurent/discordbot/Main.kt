@@ -1,17 +1,17 @@
-package fr.nlaurent.sharestocks
+package fr.nlaurent.discordbot.sharestocks
 
 import discord4j.core.DiscordClient
 import discord4j.core.`object`.entity.channel.MessageChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
-import fr.nlaurent.sharestocks.beans.*
+import fr.nlaurent.discordbot.Properties
+import fr.nlaurent.discordbot.sharestocks.beans.*
 import kotlin.io.path.ExperimentalPathApi
 
 
 @ExperimentalPathApi
-fun main(args: Array<String>) {
+fun main() {
 
-
-    val client = DiscordClient.create("*** BOT key here ***")
+    val client = DiscordClient.create(Properties.botToken)
     val gateway = client.login().block()
 
     gateway.on(MessageCreateEvent::class.java).subscribe { event: MessageCreateEvent ->

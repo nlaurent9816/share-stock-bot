@@ -1,4 +1,4 @@
-package fr.nlaurent.sharestocks.beans
+package fr.nlaurent.discordbot.sharestocks.beans
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

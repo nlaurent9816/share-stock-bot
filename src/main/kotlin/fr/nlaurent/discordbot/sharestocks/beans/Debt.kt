@@ -1,4 +1,4 @@
-package fr.nlaurent.sharestocks.beans
+package fr.nlaurent.discordbot.sharestocks.beans
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient

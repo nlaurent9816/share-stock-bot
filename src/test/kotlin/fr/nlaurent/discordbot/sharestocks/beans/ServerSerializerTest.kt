@@ -1,4 +1,4 @@
-package fr.nlaurent.sharestocks.beans
+package fr.nlaurent.discordbot.sharestocks.beans
 
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
