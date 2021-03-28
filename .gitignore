@@ -1,0 +1,16 @@
+#gradle
+.gradle/
+build/
+
+#intellij
+.idea/
+*.iml
+
+#eclipse
+.classpath
+.project
+.settings
+.metadata
+
+#project specific
+/servers/

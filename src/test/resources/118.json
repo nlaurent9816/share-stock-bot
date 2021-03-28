@@ -1,0 +1,43 @@
+{
+  "id": 118,
+  "players": [
+    {
+      "id": 1,
+      "name": "Nico"
+    },
+    {
+      "id": 2,
+      "name": "Cubi"
+    },
+    {
+      "id": 3,
+      "name": "T~"
+    },
+    {
+      "id": 4,
+      "name": "Freeks"
+    }
+  ],
+  "debts": [
+    {
+      "debtorId": 1,
+      "creditorId": 2,
+      "stocksCount": 2
+    },
+    {
+      "debtorId": 2,
+      "creditorId": 3,
+      "stocksCount": 7
+    },
+    {
+      "debtorId": 1,
+      "creditorId": 3,
+      "stocksCount": 1
+    },
+    {
+      "debtorId": 4,
+      "creditorId": 1,
+      "stocksCount": 5
+    }
+  ]
+}
