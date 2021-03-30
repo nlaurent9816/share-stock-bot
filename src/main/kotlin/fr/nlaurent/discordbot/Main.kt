@@ -5,6 +5,7 @@ import discord4j.core.`object`.entity.channel.MessageChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
 import fr.nlaurent.discordbot.Properties
 import fr.nlaurent.discordbot.sharestocks.beans.*
+import fr.nlaurent.discordbot.sharestocks.commands.Steal
 import kotlin.io.path.ExperimentalPathApi
 
 
@@ -14,61 +15,11 @@ fun main() {
     val client = DiscordClient.create(Properties.botToken)
     val gateway = client.login().block()
 
-    gateway.on(MessageCreateEvent::class.java).subscribe { event: MessageCreateEvent ->
-        val message = event.message
-        if (message.content.startsWith("!voleur")) {
-            //Vérifications
-            val channel: MessageChannel = message.channel.block()
-            val parameters = message.content.split(Regex("\\s"))
-            if (parameters.size < 2) {
-                channel.createMessage("Usage: !voleur @voleur").block()
-                return@subscribe
-            }
-            val voleur = message.userMentions.blockFirst()
-            if (voleur == null) {
-                channel.createMessage("Usage: !voleur @voleur").block()
-                return@subscribe
-            }
-            val voleurMember = event.guild.block().getMemberById(voleur.id).block()
-            val victime = message.authorAsMember.block()
-            if (voleur.id == victime.id) {
-                channel.createMessage("Tu ne peux pas te voler toi-même !").block()
-                return@subscribe
-            }
-
-            //Process
-            val serverId = event.guildId.orElseThrow { IllegalStateException("No guildId!") }
-            val serverData = Server.from(serverId)
-
-            val voleurPlayer = serverData.players.getOrPut(voleurMember.id.asLong()) {
-                Player(
-                    voleurMember.id.asLong(),
-                    voleurMember.displayName
-                )
-            }.apply { name = voleurMember.displayName }
-            val victimePlayer = serverData.players.getOrPut(victime.id.asLong()) {
-                Player(
-                    victime.id.asLong(),
-                    victime.displayName
-                )
-            }.apply { name = victime.displayName }
+    gateway.on(MessageCreateEvent::class.java)
+        .filter { it.message.content.startsWith("!voleur") || it.message.content.startsWith("!vol") }
+        .subscribe { Steal(it).process() }
 
 
-            val newDebt = Debt(voleurPlayer, victimePlayer, 1L)
-            val filteredDebts = serverData.debts.filter { it.concern(voleurPlayer, victimePlayer) }
-            if (filteredDebts.isEmpty()) {
-                serverData.debts.add(newDebt)
-            } else {
-                val existingDebt = filteredDebts.first()
-                existingDebt.addDebt(Debt(voleurPlayer, victimePlayer, 1L))
-                if (existingDebt.stocksCount == 0L) {
-                    serverData.debts.remove(existingDebt)
-                }
-            }
-            channel.createMessage("${voleurPlayer.name} a volé une stock à ${victimePlayer.name} !").block()
-            serverData.save()
-        }
-    }
     gateway.on(MessageCreateEvent::class.java).subscribe { event: MessageCreateEvent ->
         val message = event.message
         if (message.content.startsWith("!status")) {
@@ -84,12 +35,10 @@ fun main() {
 
         }
     }
-    gateway.on(MessageCreateEvent::class.java).subscribe { event: MessageCreateEvent ->
-        val message = event.message
-        if ("!ping" == message.content) {
-            val channel: MessageChannel = message.channel.block()
-            channel.createMessage("Pong!").block()
+    gateway.on(MessageCreateEvent::class.java).filter { it.message.content.equals("!ping", true) }
+        .subscribe { event: MessageCreateEvent ->
+            val channel: MessageChannel? = event.message.channel.block()
+            channel?.run { createMessage("Pong!").subscribe() }
         }
-    }
     gateway.onDisconnect().block()
 }
