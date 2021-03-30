@@ -20,7 +20,7 @@ class Steal(event: MessageCreateEvent) : AbstractCommand(event) {
 
     private fun verify(): Boolean {
         val parameters = splitParameters()
-        if (parameters.size < 2) {
+        if (parameters.size < 2 || parameters.size > 3) {
             sendMessage(USAGE)
             return false
         }
