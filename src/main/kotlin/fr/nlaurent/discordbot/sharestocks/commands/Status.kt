@@ -9,7 +9,7 @@ import kotlin.io.path.ExperimentalPathApi
 class Status(event: MessageCreateEvent) : AbstractCommand(event) {
 
     companion object {
-        private const val USAGE = "Usage : !status [@mention|all]"
+        private const val USAGE = "Usage : !status [@mention|users|debts|all]"
     }
 
     private val parameters = splitParameters()
@@ -24,11 +24,17 @@ class Status(event: MessageCreateEvent) : AbstractCommand(event) {
             return false
         }
 
-        if (parameters.size > 1 && !parameters[1].equals("all", true) && targetUser == null) {
+        if (parameters.size > 1 && !parameters[1].isGlobalStatus() && targetUser == null) {
             sendMessage(USAGE)
             return false
         }
         return true
+    }
+
+    private fun String.isGlobalStatus(): Boolean {
+        return this.equals("all", true)
+                || this.equals("users", true)
+                || this.equals("debts", true)
     }
 
     @ExperimentalPathApi
@@ -41,9 +47,15 @@ class Status(event: MessageCreateEvent) : AbstractCommand(event) {
             return
         }
 
-        when (val user = resolveUser()) {
-            (null) -> sendMessage(statusAll())
-            else -> sendMessage(statusUser(user))
+        val user = resolveUser()
+        if (user != null) {
+            sendMessage(statusUser(user))
+        } else if (parameters[1].equals("users", true)) {
+            sendMessage(statusUsers())
+        } else if (parameters[1].equals("debts", true)) {
+            sendMessage(statusDebts())
+        } else {
+            sendMessage(statusUsers() + "\n" + statusDebts())
         }
 
     }
@@ -54,7 +66,7 @@ class Status(event: MessageCreateEvent) : AbstractCommand(event) {
             parameters.size == 1 -> {
                 serverData.getPlayerOrNew(caller)
             }
-            parameters[1].equals("all", true) -> {
+            parameters[1].isGlobalStatus() -> {
                 null
             }
             else -> {
@@ -97,10 +109,25 @@ class Status(event: MessageCreateEvent) : AbstractCommand(event) {
     }
 
     @ExperimentalPathApi
-    private fun statusAll(): String {
+    private fun statusDebts(): String {
         return buildString {
-            append("**Statut global** :\n")
+            append("**Statut dettes** :\n")
             serverData.debts.forEach { append("* ").append(it).append("\n") }
         }
     }
+
+    @ExperimentalPathApi
+    private fun statusUsers(): String {
+        return buildString {
+            append("**Statut utilisateurs** :\n")
+            serverData.players.forEach { (_, player) ->
+                val debts = serverData.getPlayerDebts(player)
+                val totalDebt = debts.map { it.stocksCount }.sum()
+                val accounts = serverData.getPlayerAccounts(player)
+                val totalAccount = accounts.map { it.stocksCount }.sum()
+                append("* **${player.name}** : Balance : ${totalAccount - totalDebt}, Dette totale : $totalDebt, Créance totale : $totalAccount\n")
+            }
+        }
+    }
+
 }

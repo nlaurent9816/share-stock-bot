@@ -16,6 +16,14 @@ class Server constructor(
                 member.displayName
             )
         }.apply { name = member.displayName }
-
     }
+
+    fun getPlayerDebts(player: Player): List<Debt> {
+        return debts.filter { it.debtor == player }
+    }
+
+    fun getPlayerAccounts(player: Player): List<Debt> {
+        return debts.filter { it.creditor == player }
+    }
+
 }
