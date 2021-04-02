@@ -33,7 +33,7 @@ class Steal(event: MessageCreateEvent) : AbstractCommand(event) {
 
         stolenStockCount = getStockCount(parameters)
         if (stolenStockCount > 9) {
-            sendMessage("Tu peux te faire voler que 9 stocks maximum par commande.")
+            sendMessage("Tu ne peux te faire voler que 9 stocks maximum par commande.")
             return false
         }
 

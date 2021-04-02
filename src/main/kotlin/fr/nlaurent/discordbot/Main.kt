@@ -1,9 +1,8 @@
-package fr.nlaurent.discordbot.sharestocks
+package fr.nlaurent.discordbot
 
 import discord4j.core.DiscordClient
 import discord4j.core.`object`.entity.channel.MessageChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
-import fr.nlaurent.discordbot.Properties
 import fr.nlaurent.discordbot.sharestocks.commands.Status
 import fr.nlaurent.discordbot.sharestocks.commands.Steal
 import kotlin.io.path.ExperimentalPathApi
@@ -16,7 +15,7 @@ fun main() {
     val gateway = client.login().block() ?: throw Exception("Failed to connect to gateway")
 
     gateway.on(MessageCreateEvent::class.java)
-        .filter { it.message.content.startsWith("!voleur") || it.message.content.startsWith("!vol") }
+        .filter { it.message.content.startsWith("!voleur") || it.message.content.startsWith("!vol ") }
         .subscribe { Steal(it).process() }
 
     gateway.on(MessageCreateEvent::class.java)

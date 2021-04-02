@@ -5,7 +5,7 @@ import discord4j.core.event.domain.message.MessageCreateEvent
 abstract class AbstractCommand(val event: MessageCreateEvent) {
 
     companion object {
-        private val BLANK_CHAR_REGEX = Regex("\\s")
+        private val BLANK_CHAR_REGEX = Regex("\\s+")
     }
 
     val message = event.message
