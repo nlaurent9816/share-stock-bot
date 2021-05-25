@@ -23,7 +23,7 @@ object ServerSerializer : KSerializer<Server> {
 
     override fun deserialize(decoder: Decoder): Server {
         val surrogate = ServerSurrogate.serializer().deserialize(decoder)
-        val playersMap = surrogate.players.map { it.id to it }.toMap()
+        val playersMap = surrogate.players.associateBy { it.id }
         val result = Server(surrogate.id, playersMap.toMutableMap(), surrogate.debts.toMutableSet())
 
         result.debts.forEach {
@@ -44,20 +44,17 @@ object ServerSerializer : KSerializer<Server> {
 private const val FILES_LOCATION = "servers"
 private val JSON = Json { prettyPrint = true;ignoreUnknownKeys = true }
 
-@ExperimentalPathApi
 fun Server.Companion.from(id: Long, location: String = FILES_LOCATION): Server {
     val serverFilePath = Path(location, "$id.json")
     return if (serverFilePath.isRegularFile()) {
-        JSON.decodeFromString<Server>(serverFilePath.readText(Charsets.UTF_8))
+        JSON.decodeFromString(serverFilePath.readText(Charsets.UTF_8))
     } else {
         Server(id)
     }
 }
 
-@ExperimentalPathApi
 fun Server.Companion.from(id: Snowflake, location: String = FILES_LOCATION): Server = from(id.asLong(), location)
 
-@ExperimentalPathApi
 fun Server.save(location: String = FILES_LOCATION) {
     val serverFilePath = Path(location, "$id.json")
     serverFilePath.parent.createDirectories()

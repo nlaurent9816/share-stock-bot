@@ -11,7 +11,6 @@ import fr.nlaurent.discordbot.sharestocks.beans.Server
 import fr.nlaurent.discordbot.sharestocks.beans.from
 import fr.nlaurent.discordbot.sharestocks.beans.save
 import org.slf4j.LoggerFactory
-import kotlin.io.path.ExperimentalPathApi
 
 class Steal(event: InteractionCreateEvent) : AbstractCommand(event) {
 
@@ -47,7 +46,7 @@ class Steal(event: InteractionCreateEvent) : AbstractCommand(event) {
         .map { it.asMember(guild.id).block() }
         .orElseThrow { Exception("Can not get the thief.") }
 
-    var stolenStockCount: Long = 1
+    private var stolenStockCount: Long = 1
 
     private fun verify(): Boolean {
 
@@ -78,7 +77,6 @@ class Steal(event: InteractionCreateEvent) : AbstractCommand(event) {
         return event.interaction.commandInteraction.getOption("nb_vies").map { it.value.get().asLong() }.orElse(1)
     }
 
-    @ExperimentalPathApi
     override fun process() {
         LOGGER.info("STEAL command requested by {}", caller.username)
         if (!verify()) {

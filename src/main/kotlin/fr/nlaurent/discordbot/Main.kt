@@ -8,10 +8,8 @@ import fr.nlaurent.discordbot.sharestocks.commands.Status
 import fr.nlaurent.discordbot.sharestocks.commands.Steal
 import fr.nlaurent.discordbot.sharestocks.commands.oldformat.OldStatus
 import fr.nlaurent.discordbot.sharestocks.commands.oldformat.OldSteal
-import kotlin.io.path.ExperimentalPathApi
 
 
-@ExperimentalPathApi
 fun main() {
 
     val client = DiscordClient.create(Properties.botToken)

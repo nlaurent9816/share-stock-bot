@@ -4,7 +4,6 @@ import discord4j.core.event.domain.message.MessageCreateEvent
 import fr.nlaurent.discordbot.sharestocks.beans.Player
 import fr.nlaurent.discordbot.sharestocks.beans.Server
 import fr.nlaurent.discordbot.sharestocks.beans.from
-import kotlin.io.path.ExperimentalPathApi
 
 class OldStatus(event: MessageCreateEvent) : OldAbstractCommand(event) {
 
@@ -15,7 +14,6 @@ class OldStatus(event: MessageCreateEvent) : OldAbstractCommand(event) {
     private val parameters = splitParameters()
     private val targetUser by lazy { message.userMentions.blockFirst()?.let { guild.getMemberById(it.id).block() } }
 
-    @ExperimentalPathApi
     private val serverData = Server.from(guild.id)
 
     private fun verify(): Boolean {
@@ -37,7 +35,6 @@ class OldStatus(event: MessageCreateEvent) : OldAbstractCommand(event) {
                 || this.equals("debts", true)
     }
 
-    @ExperimentalPathApi
     override fun process() {
 
         if (!verify()) return
@@ -60,7 +57,6 @@ class OldStatus(event: MessageCreateEvent) : OldAbstractCommand(event) {
 
     }
 
-    @ExperimentalPathApi
     private fun resolveUser(): Player? {
         return when {
             parameters.size == 1 -> {
@@ -75,7 +71,6 @@ class OldStatus(event: MessageCreateEvent) : OldAbstractCommand(event) {
         }
     }
 
-    @ExperimentalPathApi
     private fun statusUser(user: Player): String {
         val userDebts = serverData.debts.filter { it.debtor == user }
         val userAccount = serverData.debts.filter { it.creditor == user }
@@ -108,7 +103,6 @@ class OldStatus(event: MessageCreateEvent) : OldAbstractCommand(event) {
 
     }
 
-    @ExperimentalPathApi
     private fun statusDebts(): String {
         return buildString {
             append("**Statut dettes** :\n")
@@ -116,15 +110,14 @@ class OldStatus(event: MessageCreateEvent) : OldAbstractCommand(event) {
         }
     }
 
-    @ExperimentalPathApi
     private fun statusUsers(): String {
         return buildString {
             append("**Statut utilisateurs** :\n")
             serverData.players.forEach { (_, player) ->
                 val debts = serverData.getPlayerDebts(player)
-                val totalDebt = debts.map { it.stocksCount }.sum()
+                val totalDebt = debts.sumOf { it.stocksCount }
                 val accounts = serverData.getPlayerAccounts(player)
-                val totalAccount = accounts.map { it.stocksCount }.sum()
+                val totalAccount = accounts.sumOf { it.stocksCount }
                 append("* **${player.name}** : Balance : ${totalAccount - totalDebt}, Dette totale : $totalDebt, Créance totale : $totalAccount\n")
             }
         }

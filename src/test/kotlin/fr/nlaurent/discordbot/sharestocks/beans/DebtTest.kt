@@ -5,7 +5,7 @@ import org.junit.jupiter.api.assertThrows
 
 internal class DebtTest {
 
-    val debt = Debt(Player(1, "Machin"), Player(2, "Truc"), 2)
+    private val debt = Debt(Player(1, "Machin"), Player(2, "Truc"), 2)
 
     @Test
     fun testConstructor() {
@@ -42,6 +42,4 @@ internal class DebtTest {
             debt += Debt(Player(3, "Nico"), Player(4, "Cubi"), 3)
         }
     }
-
-
 }

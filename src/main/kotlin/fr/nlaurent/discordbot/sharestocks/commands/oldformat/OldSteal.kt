@@ -6,7 +6,6 @@ import fr.nlaurent.discordbot.sharestocks.beans.Debt
 import fr.nlaurent.discordbot.sharestocks.beans.Server
 import fr.nlaurent.discordbot.sharestocks.beans.from
 import fr.nlaurent.discordbot.sharestocks.beans.save
-import kotlin.io.path.ExperimentalPathApi
 
 class OldSteal(event: MessageCreateEvent) : OldAbstractCommand(event) {
 
@@ -15,9 +14,9 @@ class OldSteal(event: MessageCreateEvent) : OldAbstractCommand(event) {
 
     }
 
-    var voleur: Member? = null
+    private var voleur: Member? = null
 
-    var stolenStockCount: Long = 1
+    private var stolenStockCount: Long = 1
 
     private fun verify(): Boolean {
         val parameters = splitParameters()
@@ -56,7 +55,6 @@ class OldSteal(event: MessageCreateEvent) : OldAbstractCommand(event) {
         } else 1
     }
 
-    @ExperimentalPathApi
     override fun process() {
 
         if (!verify()) return

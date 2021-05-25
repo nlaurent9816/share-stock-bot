@@ -9,7 +9,6 @@ import fr.nlaurent.discordbot.sharestocks.beans.Player
 import fr.nlaurent.discordbot.sharestocks.beans.Server
 import fr.nlaurent.discordbot.sharestocks.beans.from
 import org.slf4j.LoggerFactory
-import kotlin.io.path.ExperimentalPathApi
 
 class Status(event: InteractionCreateEvent) : AbstractCommand(event) {
 
@@ -58,10 +57,8 @@ class Status(event: InteractionCreateEvent) : AbstractCommand(event) {
 
     private val subCommand = event.interaction.commandInteraction.options[0]
 
-    @ExperimentalPathApi
     private val serverData = Server.from(guild.id)
 
-    @ExperimentalPathApi
     override fun process() {
         LOGGER.info("STATUS command requested by {}", caller.username)
 
@@ -88,7 +85,6 @@ class Status(event: InteractionCreateEvent) : AbstractCommand(event) {
         LOGGER.info("STATUS command ended successfully")
     }
 
-    @ExperimentalPathApi
     private fun resolveUser(): Player {
 
         val optionalUser = subCommand.getOption("user")
@@ -103,7 +99,6 @@ class Status(event: InteractionCreateEvent) : AbstractCommand(event) {
         }
     }
 
-    @ExperimentalPathApi
     private fun statusUser(user: Player): String {
         val userDebts = serverData.debts.filter { it.debtor == user }
         val userAccount = serverData.debts.filter { it.creditor == user }
@@ -136,7 +131,6 @@ class Status(event: InteractionCreateEvent) : AbstractCommand(event) {
 
     }
 
-    @ExperimentalPathApi
     private fun statusDebts(): String {
         return buildString {
             append("**Statut dettes** :\n")
@@ -144,15 +138,14 @@ class Status(event: InteractionCreateEvent) : AbstractCommand(event) {
         }
     }
 
-    @ExperimentalPathApi
     private fun statusUsers(): String {
         return buildString {
             append("**Statut utilisateurs** :\n")
             serverData.players.forEach { (_, player) ->
                 val debts = serverData.getPlayerDebts(player)
-                val totalDebt = debts.map { it.stocksCount }.sum()
+                val totalDebt = debts.sumOf { it.stocksCount }
                 val accounts = serverData.getPlayerAccounts(player)
-                val totalAccount = accounts.map { it.stocksCount }.sum()
+                val totalAccount = accounts.sumOf { it.stocksCount }
                 append("* **${player.name}** : Balance : ${totalAccount - totalDebt}, Dette totale : $totalDebt, Créance totale : $totalAccount\n")
             }
         }
