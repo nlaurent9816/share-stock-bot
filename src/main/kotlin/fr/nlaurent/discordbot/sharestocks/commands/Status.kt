@@ -1,77 +1,105 @@
 package fr.nlaurent.discordbot.sharestocks.commands
 
-import discord4j.core.event.domain.message.MessageCreateEvent
+import discord4j.core.event.domain.InteractionCreateEvent
+import discord4j.discordjson.json.ApplicationCommandOptionData
+import discord4j.discordjson.json.ApplicationCommandRequest
+import discord4j.rest.util.ApplicationCommandOptionType.SUB_COMMAND
+import discord4j.rest.util.ApplicationCommandOptionType.USER
 import fr.nlaurent.discordbot.sharestocks.beans.Player
 import fr.nlaurent.discordbot.sharestocks.beans.Server
 import fr.nlaurent.discordbot.sharestocks.beans.from
+import org.slf4j.LoggerFactory
 import kotlin.io.path.ExperimentalPathApi
 
-class Status(event: MessageCreateEvent) : AbstractCommand(event) {
+class Status(event: InteractionCreateEvent) : AbstractCommand(event) {
 
     companion object {
-        private const val USAGE = "Usage : !status [@mention|users|debts|all]"
+
+        @JvmStatic
+        private val LOGGER = LoggerFactory.getLogger(Status::class.java)
+
+        fun commandRequest(): ApplicationCommandRequest {
+            return ApplicationCommandRequest.builder()
+                .name("status")
+                .description("Affiche l'état des dettes.")
+                .addOption(
+                    ApplicationCommandOptionData.builder()
+                        .name("users")
+                        .description("Affiche la balance de tous les utilisateurs")
+                        .type(SUB_COMMAND.value).build()
+                )
+                .addOption(
+                    ApplicationCommandOptionData.builder()
+                        .name("debts")
+                        .description("Affiches toutes les dettes")
+                        .type(SUB_COMMAND.value).build()
+                )
+                .addOption(
+                    ApplicationCommandOptionData.builder()
+                        .name("all")
+                        .description("Affiche tout pour tout le monde")
+                        .type(SUB_COMMAND.value).build()
+                )
+                .addOption(
+                    ApplicationCommandOptionData.builder()
+                        .name("user")
+                        .description("Affiche le statut de l'appelant ou de l'utilisateur mentionné")
+                        .type(SUB_COMMAND.value).addOption(
+                            ApplicationCommandOptionData.builder()
+                                .name("user")
+                                .description("L'utilisateur dont on doit afficher le résumé.")
+                                .type(USER.value)
+                                .required(false).build()
+                        ).build()
+                )
+                .build()
+        }
     }
 
-    private val parameters = splitParameters()
-    private val targetUser by lazy { message.userMentions.blockFirst()?.let { guild.getMemberById(it.id).block() } }
+    private val subCommand = event.interaction.commandInteraction.options[0]
 
     @ExperimentalPathApi
     private val serverData = Server.from(guild.id)
 
-    private fun verify(): Boolean {
-        if (parameters.size > 2) {
-            sendMessage(USAGE)
-            return false
-        }
-
-        if (parameters.size > 1 && !parameters[1].isGlobalStatus() && targetUser == null) {
-            sendMessage(USAGE)
-            return false
-        }
-        return true
-    }
-
-    private fun String.isGlobalStatus(): Boolean {
-        return this.equals("all", true)
-                || this.equals("users", true)
-                || this.equals("debts", true)
-    }
-
     @ExperimentalPathApi
     override fun process() {
-
-        if (!verify()) return
+        LOGGER.info("STATUS command requested by {}", caller.username)
 
         if (serverData.debts.isEmpty()) {
-            channel.createMessage("Rien de stocké (pour l'instant)").subscribe()
+            reply("Rien de stocké (pour l'instant)")
+            LOGGER.info("STATUS command ended successfully")
             return
         }
 
-        val user = resolveUser()
-        if (user != null) {
-            sendMessage(statusUser(user))
-        } else if (parameters[1].equals("users", true)) {
-            sendMessage(statusUsers())
-        } else if (parameters[1].equals("debts", true)) {
-            sendMessage(statusDebts())
-        } else {
-            sendMessage(statusUsers() + "\n" + statusDebts())
+        when (subCommand.name) {
+            "user" -> {
+                reply(statusUser(resolveUser()))
+            }
+            "users" -> {
+                reply(statusUsers())
+            }
+            "debts" -> {
+                reply(statusDebts())
+            }
+            "all" -> {
+                reply(statusUsers() + "\n" + statusDebts())
+            }
         }
-
+        LOGGER.info("STATUS command ended successfully")
     }
 
     @ExperimentalPathApi
-    private fun resolveUser(): Player? {
-        return when {
-            parameters.size == 1 -> {
-                serverData.getPlayerOrNew(caller)
-            }
-            parameters[1].isGlobalStatus() -> {
-                null
-            }
-            else -> {
-                targetUser?.let { serverData.getPlayerOrNew(it) }
-            }
+    private fun resolveUser(): Player {
+
+        val optionalUser = subCommand.getOption("user")
+
+        return if (optionalUser.isPresent) {
+            val user =
+                optionalUser.get().value.get().asUser().block() ?: throw Exception("Failed to get the target user")
+            val member = user.asMember(guild.id).block() ?: throw Exception("Failed to get the target member")
+            serverData.getPlayerOrNew(member)
+        } else {
+            serverData.getPlayerOrNew(caller)
         }
     }
 

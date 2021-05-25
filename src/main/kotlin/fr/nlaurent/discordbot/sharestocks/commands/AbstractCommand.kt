@@ -1,24 +1,19 @@
 package fr.nlaurent.discordbot.sharestocks.commands
 
-import discord4j.core.event.domain.message.MessageCreateEvent
+import discord4j.core.event.domain.InteractionCreateEvent
 
-abstract class AbstractCommand(val event: MessageCreateEvent) {
+abstract class AbstractCommand(val event: InteractionCreateEvent) {
 
-    companion object {
-        private val BLANK_CHAR_REGEX = Regex("\\s+")
+    val guild = event.interaction.guild.block() ?: throw Exception("Failed to retrieve guild")
+    val channel = event.interaction.channel.block() ?: throw Exception("Failed to retrieve channel")
+    val caller = event.interaction.member.orElseThrow { Exception("Failed to retrieve caller member") }
+
+    protected fun reply(message: String) {
+        event.reply(message).subscribe()
     }
 
-    val message = event.message
-    val guild = event.guild.block() ?: throw Exception("Failed to retrieve guild")
-    val channel = message.channel.block() ?: throw Exception("Failed to retrieve channel")
-    val caller = message.authorAsMember.block() ?: throw Exception("Failed to retrieve caller member")
-
-    protected fun sendMessage(message: String) {
-        channel.createMessage(message).subscribe()
-    }
-
-    protected fun splitParameters(): List<String> {
-        return message.content.split(BLANK_CHAR_REGEX)
+    protected fun replyEphemeral(message: String) {
+        event.replyEphemeral(message).subscribe()
     }
 
     abstract fun process()
