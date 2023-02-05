@@ -26,7 +26,10 @@ internal class ServerSerializerTest {
 
     @BeforeEach
     fun cleanup() {
-        Path("build/tmp/servers").forEachDirectoryEntry { it.deleteExisting() }
+        val path = Path("build/tmp/servers")
+        if (path.isDirectory()) {
+            path.forEachDirectoryEntry { it.deleteExisting() }
+        }
     }
 
     @Test
@@ -76,7 +79,7 @@ internal class ServerSerializerTest {
     @Test
     fun testFrom_miss() {
         val newServer = Server.from(9999, "build/tmp/servers")
-        assert(Path("build/tmp/servers/${newServer.id}.json").isRegularFile())
+        assert(Path("build/tmp/servers/${newServer.id}.json").notExists())
         assert(newServer.id == 9999L)
 
     }
