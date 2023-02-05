@@ -1,7 +1,7 @@
 package fr.nlaurent.discordbot
 
 import discord4j.core.DiscordClient
-import discord4j.core.event.domain.InteractionCreateEvent
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
 import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.discordjson.json.ApplicationCommandRequest
 import fr.nlaurent.discordbot.sharestocks.commands.Status
@@ -41,16 +41,16 @@ fun main() {
         .filter { it.message.content.startsWith("!status") }
         .subscribe { OldStatus(it).process() }
 
-    gateway.on(InteractionCreateEvent::class.java).filter { it.commandName.equals("ping") }
+    gateway.on(ChatInputInteractionEvent::class.java).filter { it.commandName.equals("ping") }
         .subscribe {
             println("Pong!")
             it.reply("Pong!").subscribe()
         }
 
-    gateway.on(InteractionCreateEvent::class.java).filter { it.commandName.equals("vol") }
+    gateway.on(ChatInputInteractionEvent::class.java).filter { it.commandName.equals("vol") }
         .subscribe { Steal(it).process() }
 
-    gateway.on(InteractionCreateEvent::class.java).filter { it.commandName.equals("status") }
+    gateway.on(ChatInputInteractionEvent::class.java).filter { it.commandName.equals("status") }
         .subscribe { Status(it).process() }
 
     gateway.onDisconnect().block()

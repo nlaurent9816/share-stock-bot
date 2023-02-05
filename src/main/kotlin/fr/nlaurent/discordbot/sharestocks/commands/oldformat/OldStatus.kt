@@ -12,7 +12,7 @@ class OldStatus(event: MessageCreateEvent) : OldAbstractCommand(event) {
     }
 
     private val parameters = splitParameters()
-    private val targetUser by lazy { message.userMentions.blockFirst()?.let { guild.getMemberById(it.id).block() } }
+    private val targetUser by lazy { message.userMentions.firstOrNull()?.let { guild.getMemberById(it.id).block() } }
 
     private val serverData = Server.from(guild.id)
 

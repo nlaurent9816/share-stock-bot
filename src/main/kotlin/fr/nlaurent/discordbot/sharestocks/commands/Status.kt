@@ -1,16 +1,16 @@
 package fr.nlaurent.discordbot.sharestocks.commands
 
-import discord4j.core.event.domain.InteractionCreateEvent
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
+import discord4j.core.`object`.command.ApplicationCommandOption.Type.SUB_COMMAND
+import discord4j.core.`object`.command.ApplicationCommandOption.Type.USER
 import discord4j.discordjson.json.ApplicationCommandOptionData
 import discord4j.discordjson.json.ApplicationCommandRequest
-import discord4j.rest.util.ApplicationCommandOptionType.SUB_COMMAND
-import discord4j.rest.util.ApplicationCommandOptionType.USER
 import fr.nlaurent.discordbot.sharestocks.beans.Player
 import fr.nlaurent.discordbot.sharestocks.beans.Server
 import fr.nlaurent.discordbot.sharestocks.beans.from
 import org.slf4j.LoggerFactory
 
-class Status(event: InteractionCreateEvent) : AbstractCommand(event) {
+class Status(event: ChatInputInteractionEvent) : AbstractCommand(event) {
 
     companion object {
 
@@ -55,7 +55,7 @@ class Status(event: InteractionCreateEvent) : AbstractCommand(event) {
         }
     }
 
-    private val subCommand = event.interaction.commandInteraction.options[0]
+    private val subCommand = event.interaction.commandInteraction.get().options[0]
 
     private val serverData = Server.from(guild.id)
 

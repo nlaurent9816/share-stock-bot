@@ -1,11 +1,10 @@
 package fr.nlaurent.discordbot.sharestocks.commands
 
-import discord4j.core.event.domain.InteractionCreateEvent
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
 
-abstract class AbstractCommand(val event: InteractionCreateEvent) {
+abstract class AbstractCommand(val event: ChatInputInteractionEvent) {
 
     val guild = event.interaction.guild.block() ?: throw Exception("Failed to retrieve guild")
-    val channel = event.interaction.channel.block() ?: throw Exception("Failed to retrieve channel")
     val caller = event.interaction.member.orElseThrow { Exception("Failed to retrieve caller member") }
 
     protected fun reply(message: String) {
@@ -13,7 +12,7 @@ abstract class AbstractCommand(val event: InteractionCreateEvent) {
     }
 
     protected fun replyEphemeral(message: String) {
-        event.replyEphemeral(message).subscribe()
+        event.reply(message).withEphemeral(true).subscribe()
     }
 
     abstract fun process()

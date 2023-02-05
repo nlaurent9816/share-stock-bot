@@ -1,7 +1,7 @@
 package fr.nlaurent.discordbot.sharestocks.commands.oldformat
 
-import discord4j.core.`object`.entity.Member
 import discord4j.core.event.domain.message.MessageCreateEvent
+import discord4j.core.`object`.entity.Member
 import fr.nlaurent.discordbot.sharestocks.beans.Debt
 import fr.nlaurent.discordbot.sharestocks.beans.Server
 import fr.nlaurent.discordbot.sharestocks.beans.from
@@ -25,7 +25,7 @@ class OldSteal(event: MessageCreateEvent) : OldAbstractCommand(event) {
             return false
         }
 
-        voleur = message.userMentions.blockFirst()?.let { guild.getMemberById(it.id).block() }
+        voleur = message.userMentions.firstOrNull()?.let { guild.getMemberById(it.id).block() }
         if (voleur == null) {
             sendMessage(USAGE)
             return false

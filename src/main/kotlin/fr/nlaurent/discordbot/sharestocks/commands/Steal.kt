@@ -1,18 +1,18 @@
 package fr.nlaurent.discordbot.sharestocks.commands
 
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
+import discord4j.core.`object`.command.ApplicationCommandOption.Type.INTEGER
+import discord4j.core.`object`.command.ApplicationCommandOption.Type.USER
 import discord4j.core.`object`.entity.Member
-import discord4j.core.event.domain.InteractionCreateEvent
 import discord4j.discordjson.json.ApplicationCommandOptionData
 import discord4j.discordjson.json.ApplicationCommandRequest
-import discord4j.rest.util.ApplicationCommandOptionType.INTEGER
-import discord4j.rest.util.ApplicationCommandOptionType.USER
 import fr.nlaurent.discordbot.sharestocks.beans.Debt
 import fr.nlaurent.discordbot.sharestocks.beans.Server
 import fr.nlaurent.discordbot.sharestocks.beans.from
 import fr.nlaurent.discordbot.sharestocks.beans.save
 import org.slf4j.LoggerFactory
 
-class Steal(event: InteractionCreateEvent) : AbstractCommand(event) {
+class Steal(event: ChatInputInteractionEvent) : AbstractCommand(event) {
 
     companion object {
 
@@ -41,7 +41,7 @@ class Steal(event: InteractionCreateEvent) : AbstractCommand(event) {
         }
     }
 
-    private var voleur: Member = event.interaction.commandInteraction.getOption("voleur")
+    private var voleur: Member = event.interaction.commandInteraction.flatMap { it.getOption("voleur") }
         .map { it.value.get().asUser().block() }
         .map { it.asMember(guild.id).block() }
         .orElseThrow { Exception("Can not get the thief.") }
@@ -74,7 +74,8 @@ class Steal(event: InteractionCreateEvent) : AbstractCommand(event) {
     }
 
     private fun getStockCount(): Long {
-        return event.interaction.commandInteraction.getOption("nb_vies").map { it.value.get().asLong() }.orElse(1)
+        return event.interaction.commandInteraction.flatMap { it.getOption("nb_vies") }.map { it.value.get().asLong() }
+            .orElse(1)
     }
 
     override fun process() {
