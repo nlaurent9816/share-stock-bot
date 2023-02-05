@@ -7,7 +7,7 @@ plugins {
 }
 
 group 'fr.nlaurent'
-version '0.2'
+version '0.3-SNAPSHOT'
 compileJava.options.encoding = 'UTF-8'
 
 repositories {
